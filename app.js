@@ -3,6 +3,7 @@
 const express = require("express"); // require the express module
 const bodyParser = require("body-parser"); // require the body-parser module
 const ejs = require("ejs"); // require the ejs module
+const _ = require('lodash'); // require the lodash module
 
 const homeStartingContent = "Lacus vel facilisis volutpat est velit egestas dui id ornare. Semper auctor neque vitae tempus quam. Sit amet cursus sit amet dictum sit amet justo. Viverra tellus in hac habitasse. Imperdiet proin fermentum leo vel orci porta. Donec ultrices tincidunt arcu non sodales neque sodales ut. Mattis molestie a iaculis at erat pellentesque adipiscing. Magnis dis parturient montes nascetur ridiculus mus mauris vitae ultricies. Adipiscing elit ut aliquam purus sit amet luctus venenatis lectus. Ultrices vitae auctor eu augue ut lectus arcu bibendum at. Odio euismod lacinia at quis risus sed vulputate odio ut. Cursus mattis molestie a iaculis at erat pellentesque adipiscing.";
 
@@ -49,17 +50,17 @@ app.post("/compose", function (req, res) { // "/" is the home route
 
 
 app.get("/posts/:postName", function (req, res) { // "/" is the home route
-  const requestedTitle = req.params.postName; // get the title from the url
+  const requestedTitle = _.lowerCase(req.params.postName); // get the title from the url
 
   posts.forEach(function (post) { // loop through the posts array
-    const storedTitle = post.title; // get the title from the posts array
+    const storedTitle = _.lowerCase(post.title); // get the title from the posts array
 
     if (storedTitle === requestedTitle) { // if the title from the url matches the title from the posts array
-      console.log("Match found!"); // log "Match found!"
-      // res.render("post", { // render the post.ejs file
-      //   title: post.title, // pass the title to the post.ejs file
-      //   content: post.content // pass the content to the post.ejs file
-      // });
+      // console.log("Match found!"); // log "Match found!"
+      res.render("post", { // render the post.ejs file
+        title: post.title, // pass the title to the post.ejs file
+        content: post.content // pass the content to the post.ejs file
+      });
     }
   });
 });
