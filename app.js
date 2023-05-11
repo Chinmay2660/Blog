@@ -43,18 +43,6 @@ app.get("/", function(req, res) { // "/" is the home route
     // res.render("home", { startingContent: homeStartingContent, posts: posts }); // render the home.ejs file
 });
 
-// app.get("/", async function(req, res) { // "/" is the home route
-//     try {
-//         const posts = await Post.find({}); // find all the posts in the database
-//         res.render("home", {
-//             startingContent: homeStartingContent,
-//             posts: posts
-//         });
-//     } catch (err) {
-//         console.error(err);
-//     }
-// });
-
 app.get("/about", function(req, res) { // "/" is the home route
     res.render("about", { aboutContent: aboutContent }); // render the about.ejs file
 });
@@ -67,27 +55,13 @@ app.get("/compose", function(req, res) { // "/" is the home route
     res.render("compose"); // render the compose.ejs file
 });
 
-// app.post("/compose", function(req, res) { // "/" is the home route
-//     const post = new Post({
-//         title: req.body.postTitle, // get the title from the form
-//         content: req.body.postBody // get the content from the form
-//     });
-//     // post.save(); // save the post to the database
-//     // posts.push(post); // push the post to the posts array
-//     post.save(function(err) {
-//         if (!err) {
-//             res.redirect("/");
-//         }
-//         // });
-//     });
-// });
-
 app.post("/compose", function(req, res) {
     const post = new Post({
         title: req.body.postTitle,
         content: req.body.postBody
     });
-
+    // post.save(); // save the post to the database
+    // posts.push(post); // push the post to the posts array
     post.save()
         .then(() => {
             res.redirect("/");
@@ -97,17 +71,6 @@ app.post("/compose", function(req, res) {
             res.status(500).send("Error saving post to database");
         });
 });
-
-
-// app.get("/posts/:postId", function(req, res) {
-//     const requestedPostId = req.params.postId;
-//     Post.findOne({ _id: requestedPostId }, function(err, post) {
-//         res.render("post", {
-//             title: post.title,
-//             content: post.content
-//         });
-//     });
-// });
 
 app.get("/posts/:postId", async function(req, res) {
     const requestedPostId = req.params.postId;
@@ -122,7 +85,6 @@ app.get("/posts/:postId", async function(req, res) {
         res.status(500).send("Error retrieving post");
     }
 });
-
 
 app.get("/posts/:postName", function(req, res) { // "/" is the home route
     const requestedTitle = _.lowerCase(req.params.postName); // get the title from the url
