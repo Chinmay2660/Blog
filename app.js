@@ -99,15 +99,30 @@ app.post("/compose", function(req, res) {
 });
 
 
-app.get("/posts/:postId", function(req, res) {
+// app.get("/posts/:postId", function(req, res) {
+//     const requestedPostId = req.params.postId;
+//     Post.findOne({ _id: requestedPostId }, function(err, post) {
+//         res.render("post", {
+//             title: post.title,
+//             content: post.content
+//         });
+//     });
+// });
+
+app.get("/posts/:postId", async function(req, res) {
     const requestedPostId = req.params.postId;
-    Post.findOne({ _id: requestedPostId }, function(err, post) {
+    try {
+        const post = await Post.findOne({ _id: requestedPostId });
         res.render("post", {
             title: post.title,
             content: post.content
         });
-    });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error retrieving post");
+    }
 });
+
 
 app.get("/posts/:postName", function(req, res) { // "/" is the home route
     const requestedTitle = _.lowerCase(req.params.postName); // get the title from the url
