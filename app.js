@@ -2,6 +2,7 @@
 
 const express = require("express"); // require the express module
 const bodyParser = require("body-parser"); // require the body-parser module
+const mongoose = require("mongoose"); // require the mongoose module
 const ejs = require("ejs"); // require the ejs module
 const _ = require('lodash'); // require the lodash module
 
@@ -13,58 +14,89 @@ const contactContent = "Scelerisque eleifend donec pretium vulputate sapien. Rho
 
 const app = express(); // create a new express app instance
 
-let posts = []; // create an empty array to store posts
+// let posts = []; // create an empty array to store posts
 
 app.set('view engine', 'ejs'); // set the view engine to ejs
 
 app.use(bodyParser.urlencoded({ extended: true })); // use the body-parser module
 app.use(express.static("public")); // use the public folder
 
-app.get("/", function (req, res) { // "/" is the home route
-  res.render("home", { startingContent: homeStartingContent, posts: posts }); // render the home.ejs file
+
+mongoose.connect("mongodb://localhost:27017/blogDB", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
 });
 
-app.get("/about", function (req, res) { // "/" is the home route
-  res.render("about", { aboutContent: aboutContent }); // render the about.ejs file
-});
+const postSchema = {
+    title: String,
+    content: String
+};
 
-app.get("/contact", function (req, res) { // "/" is the home route
-  res.render("contact", { contactContent: contactContent }); // render the contact.ejs file
-});
+const Post = mongoose.model("Post", postSchema);
 
-app.get("/compose", function (req, res) { // "/" is the home route
-  res.render("compose"); // render the compose.ejs file
-});
+// app.get("/", function(req, res) { // "/" is the home route
+//     Post.find().then(posts => {
+//         res.render("home", {
+//             startingContent: homeStartingContent,
+//             posts: posts
+//         });
+//     });
+//     // res.render("home", { startingContent: homeStartingContent, posts: posts }); // render the home.ejs file
+// });
 
-app.post("/compose", function (req, res) { // "/" is the home route
-  const post = {
-    title: req.body.postTitle, // get the title from the form
-    content: req.body.postBody // get the content from the form
-  };
-
-  posts.push(post); // push the post to the posts array
-
-  res.redirect("/"); // redirect to the home route
-
-});
-
-
-app.get("/posts/:postName", function (req, res) { // "/" is the home route
-  const requestedTitle = _.lowerCase(req.params.postName); // get the title from the url
-
-  posts.forEach(function (post) { // loop through the posts array
-    const storedTitle = _.lowerCase(post.title); // get the title from the posts array
-
-    if (storedTitle === requestedTitle) { // if the title from the url matches the title from the posts array
-      // console.log("Match found!"); // log "Match found!"
-      res.render("post", { // render the post.ejs file
-        title: post.title, // pass the title to the post.ejs file
-        content: post.content // pass the content to the post.ejs file
-      });
+app.get("/", async function(req, res) {
+    try {
+        const posts = await Post.find({});
+        res.render("home", {
+            startingContent: homeStartingContent,
+            posts: posts
+        });
+    } catch (err) {
+        console.error(err);
     }
-  });
 });
 
-app.listen(3000, function () {
-  console.log("Server started on port 3000");
+app.get("/about", function(req, res) { // "/" is the home route
+    res.render("about", { aboutContent: aboutContent }); // render the about.ejs file
+});
+
+app.get("/contact", function(req, res) { // "/" is the home route
+    res.render("contact", { contactContent: contactContent }); // render the contact.ejs file
+});
+
+app.get("/compose", function(req, res) { // "/" is the home route
+    res.render("compose"); // render the compose.ejs file
+});
+
+app.post("/compose", function(req, res) { // "/" is the home route
+    const post = new Post({
+        title: req.body.postTitle, // get the title from the form
+        content: req.body.postBody // get the content from the form
+    });
+    post.save(); // save the post to the database
+    // posts.push(post); // push the post to the posts array
+
+    res.redirect("/"); // redirect to the home route
+
+});
+
+
+app.get("/posts/:postName", function(req, res) { // "/" is the home route
+    const requestedTitle = _.lowerCase(req.params.postName); // get the title from the url
+
+    posts.forEach(function(post) { // loop through the posts array
+        const storedTitle = _.lowerCase(post.title); // get the title from the posts array
+
+        if (storedTitle === requestedTitle) { // if the title from the url matches the title from the posts array
+            // console.log("Match found!"); // log "Match found!"
+            res.render("post", { // render the post.ejs file
+                title: post.title, // pass the title to the post.ejs file
+                content: post.content // pass the content to the post.ejs file
+            });
+        }
+    });
+});
+
+app.listen(3000, function() {
+    console.log("Server started on port 3000");
 });
