@@ -44,9 +44,9 @@ const Post = mongoose.model("Post", postSchema);
 //     // res.render("home", { startingContent: homeStartingContent, posts: posts }); // render the home.ejs file
 // });
 
-app.get("/", async function(req, res) {
+app.get("/", async function(req, res) { // "/" is the home route
     try {
-        const posts = await Post.find({});
+        const posts = await Post.find({}); // find all the posts in the database
         res.render("home", {
             startingContent: homeStartingContent,
             posts: posts
@@ -73,10 +73,13 @@ app.post("/compose", function(req, res) { // "/" is the home route
         title: req.body.postTitle, // get the title from the form
         content: req.body.postBody // get the content from the form
     });
-    post.save(); // save the post to the database
+    // post.save(); // save the post to the database
     // posts.push(post); // push the post to the posts array
-
-    res.redirect("/"); // redirect to the home route
+    post.save(function(err) {
+        if (!err) {
+            res.redirect("/");
+        }
+    });
 
 });
 
