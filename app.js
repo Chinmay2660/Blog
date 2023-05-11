@@ -21,23 +21,23 @@ app.set('view engine', 'ejs'); // set the view engine to ejs
 app.use(bodyParser.urlencoded({ extended: true })); // use the body-parser module
 app.use(express.static("public")); // use the public folder
 
-mongoose.connect("mongodb://localhost:27017/blogDB", {
+mongoose.connect("mongodb://localhost:27017/blogDB", { // connect to the database
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
 
-const postSchema = {
-    title: String,
-    content: String
+const postSchema = { // create a post schema
+    title: String, // create a title property
+    content: String // create a content property
 };
 
-const Post = mongoose.model("Post", postSchema);
+const Post = mongoose.model("Post", postSchema); // create a post model
 
 app.get("/", function(req, res) { // "/" is the home route
-    Post.find().then(posts => {
-        res.render("home", {
-            startingContent: homeStartingContent,
-            posts: posts
+    Post.find().then(posts => { // find all posts
+        res.render("home", { // render the home.ejs file
+            startingContent: homeStartingContent, // pass the homeStartingContent to the home.ejs file
+            posts: posts // pass the posts to the home.ejs file
         });
     });
     // res.render("home", { startingContent: homeStartingContent, posts: posts }); // render the home.ejs file
@@ -55,34 +55,34 @@ app.get("/compose", function(req, res) { // "/" is the home route
     res.render("compose"); // render the compose.ejs file
 });
 
-app.post("/compose", function(req, res) {
-    const post = new Post({
-        title: req.body.postTitle,
-        content: req.body.postBody
+app.post("/compose", function(req, res) { // "/" is the home route
+    const post = new Post({ // create a new post
+        title: req.body.postTitle, // get the title from the form
+        content: req.body.postBody // get the content from the form
     });
     // post.save(); // save the post to the database
     // posts.push(post); // push the post to the posts array
-    post.save()
-        .then(() => {
-            res.redirect("/");
+    post.save() // save the post to the database
+        .then(() => { // then
+            res.redirect("/"); // redirect to the home route
         })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send("Error saving post to database");
+        .catch(err => { // catch any errors
+            console.error(err); // log the error
+            res.status(500).send("Error saving post to database"); // send a 500 status code
         });
 });
 
-app.get("/posts/:postId", async function(req, res) {
-    const requestedPostId = req.params.postId;
+app.get("/posts/:postId", async function(req, res) { // "/" is the home route
+    const requestedPostId = req.params.postId; // get the post id from the url
     try {
-        const post = await Post.findOne({ _id: requestedPostId });
-        res.render("post", {
-            title: post.title,
-            content: post.content
+        const post = await Post.findOne({ _id: requestedPostId }); // find the post with the requested id
+        res.render("post", { // render the post.ejs file
+            title: post.title, // pass the title to the post.ejs file
+            content: post.content // pass the content to the post.ejs file
         });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Error retrieving post");
+    } catch (err) { // catch any errors
+        console.error(err); // log the error
+        res.status(500).send("Error retrieving post"); // send a 500 status code
     }
 });
 
